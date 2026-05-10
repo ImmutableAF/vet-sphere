@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "684767557115",
+    "project_id": "vet-sphere-app",
+    "storage_bucket": "vet-sphere-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:684767557115:android:fe6630054a99cc0162475e",
+        "android_client_info": {
+          "package_name": "com.example.vet_sphere"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2GQRW8XcSKLIUS-c5OkoUvCCo9IC6fbk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
