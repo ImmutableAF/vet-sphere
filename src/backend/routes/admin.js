@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const { authMiddleware, adminAuthmiddleware } = require('../middlewares/auth');
+const { authMiddleware } = require('../middlewares/auth');
+const { adminAuthMiddleware } = require('../middlewares/admin');
 
 const {
   adminDashboard,
   updateVerifyStatus,
-} = require('../controllers/users');
+} = require('../controllers/admin');
 
-router.get('/vets/pending', authMiddleware, adminAuthmiddleware, adminDashboard);
+router.get('/vets/pending', authMiddleware, adminAuthMiddleware, adminDashboard);
 
-router.put('/vets/:id/verify', authMiddleware, adminAuthmiddleware, updateVerifyStatus);
+router.put('/vets/:id/verify', authMiddleware, adminAuthMiddleware, updateVerifyStatus);
 
 module.exports = router;
