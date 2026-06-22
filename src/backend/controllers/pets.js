@@ -1,22 +1,71 @@
+const Pet = require('../models/pets');
 
-const createPetContoller = (req, res) => {
-  res.send('Create pet endpoint');
+const createPetContoller = async (req, res) => {
+  try {
+    const { name, species, breed, age, owner, weight } = req.body;
+
+    const newPet = new Pet({
+      name,
+      species,
+      breed,
+      age,
+      owner: req.user.id, 
+      weight
+    });
+    await newPet.save();
+    res.status(201).json(newPet);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-const getPetsController = (req, res) => {
-  res.send('Get pets endpoint');
+const getPetsController = async (req, res) => {
+  try {
+    const pets = await Pet.find({ owner: req.user.id });
+    res.status(200).json(pets);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-const getPetByIdController = (req, res) => {
-  res.send('Get pet by ID endpoint');
+const getPetByIdController = async (req, res) => {
+  try {
+    const pet = await Pet.findOne({ _id: req.params.id, owner: req.user.id });
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(200).json(pet);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-const updatePetController = (req, res) => {
-  res.send('Update pet endpoint');
+const updatePetController = async (req, res) => {
+  try {
+    const pet = await Pet.findOneAndUpdate(
+      { _id: req.params.id, owner: req.user.id },
+      req.body,
+      { new: true }
+    );
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(200).json(pet);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
-const deletePetController = (req, res) => {
-  res.send('Delete pet endpoint');
+const deletePetController = async (req, res) => {
+  try {
+    const pet = await Pet.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+    res.status(200).json({ message: 'Pet deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 module.exports = {

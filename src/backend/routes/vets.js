@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authMiddleware } = require('../middlewares/auth');
 
 const {
   vetApplicationController,
@@ -7,10 +8,10 @@ const {
   getVetByIdController,
 } = require('../controllers/vets');
 
-router.post('/apply', vetApplicationController);
+router.post('/apply', authMiddleware, vetApplicationController);
 
-router.get('/', getVetsController);
+router.get('/', authMiddleware, getVetsController);
 
-router.get('/:id', getVetByIdController);
+router.get('/:id', authMiddleware, getVetByIdController);
 
 module.exports = router;

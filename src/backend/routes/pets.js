@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authMiddleware } = require('../middlewares/auth');
 
 const {
   createPetContoller,
@@ -9,14 +10,14 @@ const {
   deletePetController
 } = require('../controllers/pets');
 
-router.post('/', createPetContoller);
+router.post('/', authMiddleware, createPetContoller);
 
-router.get('/', getPetsController);
+router.get('/', authMiddleware, getPetsController);
 
-router.get('/:id', getPetByIdController);
+router.get('/:id', authMiddleware, getPetByIdController);
 
-router.put('/:id', updatePetController);
+router.put('/:id', authMiddleware, updatePetController);
 
-router.delete('/:id', deletePetController);
+router.delete('/:id', authMiddleware, deletePetController);
 
 module.exports = router;

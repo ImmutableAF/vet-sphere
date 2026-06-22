@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
+const { authMiddleware } = require('../middlewares/auth');
+
 const {createAppointment, getAppointments, updateAppointmentStatus} = require('../controllers/appointments');
 
-router.post('/', createAppointment);
+router.post('/', authMiddleware, createAppointment);
 
-router.get('/', getAppointments);
+router.get('/', authMiddleware, getAppointments);
 
-router.put('/:id/status', updateAppointmentStatus);
+router.put('/:id/status', authMiddleware, updateAppointmentStatus);
 
 module.exports = router;
