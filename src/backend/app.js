@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to VetSphere API');
 });
 
+app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
