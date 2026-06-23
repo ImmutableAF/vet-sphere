@@ -2,6 +2,10 @@ const Appointment = require('../models/appointments');
 
 const createAppointment = async (req, res) => {
   try {
+    const role = req.user.role;
+    if (role !== 'owner') {
+      return res.status(403).json({ message: 'Only owners can create appointments' });
+    }
     const { 
       pet,
       vet,
@@ -27,7 +31,9 @@ const createAppointment = async (req, res) => {
 
 const getAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find()
+    const { id } = req.params;
+
+    const appointments = await Appointment.findById(id)
       .populate('pet')
       .populate('vet')
       .populate('owner');
