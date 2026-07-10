@@ -9,7 +9,7 @@ const {
   updateVerifyStatus,
 } = require('../controllers/admin');
 
-router.get('/vets/pending', authMiddleware, adminAuthMiddleware, adminDashboard);
+router.get('/vets', authMiddleware, adminAuthMiddleware, adminDashboard);
 
 router.put('/vets/:id/verify', authMiddleware, adminAuthMiddleware, updateVerifyStatus);
 

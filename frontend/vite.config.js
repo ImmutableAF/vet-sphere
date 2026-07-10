@@ -11,7 +11,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/auth": "http://localhost:5000"
+      "/auth": "http://localhost:5000",
+      "/pets": "http://localhost:5000",
+      "/vets": "http://localhost:5000",
+      "/appointments": "http://localhost:5000",
+      "/admin": "http://localhost:5000",
     }
   }
 })

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
+const path = require('path');
 const app = express();
 
 const authRoutes = require('./routes/auth');
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);

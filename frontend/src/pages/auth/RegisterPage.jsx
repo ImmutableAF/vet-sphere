@@ -2,6 +2,10 @@ import rabbitVideo from "../../assets/videos/LoginPageVideo.mp4"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../../services/auth";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
+
+import { validateName, validateConfirmPassword, validateEmail, validateLicense, validatePassword, validatePhone, validateSpecialization } from "@/utils/validations";
 
 function RegisterPage() {
   const [phase, setPhase] = useState(1)
@@ -17,40 +21,62 @@ function RegisterPage() {
   const [licenseNumber, setLicenseNumber] = useState("")
   const [error, setError] = useState("")
 
+  const [touched, setTouched] = useState({})
+  const [errors, setErrors] = useState({})
+
+  const { setCurrentUser } = useContext(AuthContext)
+
   const handleNext = () => {
     if (!name || !email || !password || !confirmPassword) {
       setError("Please fill all the fields");
       return;
     }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
+    const hasErrors =
+      !validateName(name).valid ||
+      !validateEmail(email).valid ||
+      !validatePassword(password).valid ||
+      !validateConfirmPassword(confirmPassword, password).valid
+
+    if (hasErrors) {
+      setTouched({ name: true, email: true, password: true, confirmPassword: true })
+      return
     }
     setError("");
     setPhase(2);
   }
 
-  const handleRegister = async () => {
-    if (role === "vet") {
-      if (!phone || !specialization || !licenseNumber) {
-        setError("Please fill all the fields");
-        return;
-      }
-      setError("");
+const handleRegister = async () => {
+  if (role === "vet") {
+    if (!phone || !specialization || !licenseNumber) {
+      setError("Please fill all the fields")
+      return
     }
-    try {
-      await registerUser({
-        name, email, password, role, ...(role === "vet" && {
-          phone, specialization, licenseNumber
-        })
-      })
-      const data = await loginUser({ email, password })
-      localStorage.setItem("token", data.token)
-      navigate("/dashboard")
-    } catch (error) {
-      setError(error.response?.data?.message || "Something went wrong")
+    const hasVetErrors =
+      !validatePhone(phone).valid ||
+      !validateSpecialization(specialization).valid ||
+      !validateLicense(licenseNumber).valid
+
+    if (hasVetErrors) {
+      setTouched({ phone: true, specialization: true, licenseNumber: true })
+      return
     }
+    setError("")
   }
+  try {
+    await registerUser({
+      name, email, password, role, ...(role === "vet" && {
+        phone, specialization, licenseNumber
+      })
+    })
+    const data = await loginUser({ email, password })
+    localStorage.setItem("token", data.token)
+    setCurrentUser(data.user)
+    navigate(`/dashboard/${data.user.role}`)
+} catch (error) {
+    console.log(error)
+    setError(error.response?.data?.message || "Something went wrong")
+  }
+}
 
   const handleKeyDownPhase1 = (e) => {
     if (e.key === "Enter") handleNext()
@@ -82,36 +108,84 @@ function RegisterPage() {
             <input
               placeholder="Full Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value)
+                const result = validateName(e.target.value)
+                setErrors(prev => ({
+                  ...prev, name: result.message
+                }))
+              }}
+              onBlur={() => setTouched(prev => ({
+                ...prev, name: true
+              }))}
               onKeyDown={handleKeyDownPhase1}
               className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-4 outline-none"
             />
+            {touched.name && errors.name && (
+              <p className="text-red-400 text-sm mt-1 mb-3">{errors.name}</p>
+            )}
 
             <input
               placeholder="abc@gmail.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                const result = validateEmail(e.target.value)
+                setErrors(prev => ({
+                  ...prev, email: result.message
+                }))
+              }}
+              onBlur={() => setTouched(prev => ({
+                ...prev, email: true
+              }))}
               onKeyDown={handleKeyDownPhase1}
               className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-4 outline-none"
             />
+            {touched.email && errors.email && (
+              <p className="text-red-400 text-sm mt-1 mb-3">{errors.email}</p>
+            )}
 
             <input
               type="password"
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                const result = validatePassword(e.target.value)
+                setErrors(prev => ({
+                  ...prev, password: result.message
+                }))
+              }}
+              onBlur={() => setTouched(prev => ({
+                ...prev, password: true
+              }))}
               onKeyDown={handleKeyDownPhase1}
               className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
             />
+            {touched.password && errors.password && (
+              <p className="text-red-400 text-sm mt-1 mb-3">{errors.password}</p>
+            )}
 
             <input
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value)
+                const result = validateConfirmPassword(e.target.value, password)
+                setErrors(prev => ({
+                  ...prev, confirmPassword: result.message
+                }))
+              }}
+              onBlur={() => setTouched(prev => ({
+                ...prev, confirmPassword: true
+              }))}
               onKeyDown={handleKeyDownPhase1}
               className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
             />
+            {touched.confirmPassword && errors.confirmPassword && (
+              <p className="text-red-400 text-sm mt-1 mb-3">{errors.confirmPassword}</p>
+            )}
 
             {error && (
               <p className="text-red-400 text-sm mb-4">{error}</p>
@@ -124,7 +198,7 @@ function RegisterPage() {
             </button>
 
             <p className="text-white/60 text-center mt-6">
-              Already have an account? <span onClick={() => navigate("/login")} className="text-white cursor-pointer">Login now</span>
+              Already have an account? <span onClick={() => navigate("/")} className="text-white cursor-pointer">Login now</span>
             </p>
           </>
         )}
@@ -162,26 +236,50 @@ function RegisterPage() {
                 <input
                   placeholder="Phone Number"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    setPhone(e.target.value)
+                    const result = validatePhone(e.target.value)
+                    setErrors(prev => ({ ...prev, phone: result.message }))
+                  }}
+                  onBlur={() => setTouched(prev => ({ ...prev, phone: true }))}
                   onKeyDown={handleKeyDownPhase2}
                   className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
                 />
+                {touched.phone && errors.phone && (
+                  <p className="text-red-400 text-sm mt-1 mb-3">{errors.phone}</p>
+                )}
 
                 <input
                   placeholder="Specialization"
                   value={specialization}
-                  onChange={(e) => setSpecialization(e.target.value)}
+                  onChange={(e) => {
+                    setSpecialization(e.target.value)
+                    const result = validateSpecialization(e.target.value)
+                    setErrors(prev => ({ ...prev, specialization: result.message }))
+                  }}
+                  onBlur={() => setTouched(prev => ({ ...prev, specialization: true }))}
                   onKeyDown={handleKeyDownPhase2}
                   className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
                 />
+                {touched.specialization && errors.specialization && (
+                  <p className="text-red-400 text-sm mt-1 mb-3">{errors.specialization}</p>
+                )}
 
                 <input
                   placeholder="License Number"
                   value={licenseNumber}
-                  onChange={(e) => setLicenseNumber(e.target.value)}
+                  onChange={(e) => {
+                    setLicenseNumber(e.target.value)
+                    const result = validateLicense(e.target.value)
+                    setErrors(prev => ({ ...prev, licenseNumber: result.message }))
+                  }}
+                  onBlur={() => setTouched(prev => ({ ...prev, licenseNumber: true }))}
                   onKeyDown={handleKeyDownPhase2}
                   className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
                 />
+                {touched.licenseNumber && errors.licenseNumber && (
+                  <p className="text-red-400 text-sm mt-1 mb-3">{errors.licenseNumber}</p>
+                )}
               </>
             )}
 

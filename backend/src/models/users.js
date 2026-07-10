@@ -16,12 +16,16 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'vet'],
-    default: 'user',
+    enum: ['owner', 'admin', 'vet'],
+    default: 'owner',
+  },
+  deletionRequestedAt: {
+    type: Date,
+    default: null,
   },
 },
 {
   timestamps: true,
 });
 
-module.exports = mongoose.model('User', userSchema); 
+module.exports = mongoose.model('User', userSchema);

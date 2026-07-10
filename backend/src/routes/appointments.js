@@ -3,9 +3,16 @@ const router = express.Router();
 
 const { authMiddleware } = require('../middlewares/auth');
 
-const {createAppointment, getAppointments, updateAppointmentStatus} = require('../controllers/appointments');
+const {
+  createAppointment,
+  getAppointments,
+  getAvailability,
+  updateAppointmentStatus,
+} = require('../controllers/appointments');
 
 router.post('/', authMiddleware, createAppointment);
+
+router.get('/availability', authMiddleware, getAvailability);
 
 router.get('/', authMiddleware, getAppointments);
 

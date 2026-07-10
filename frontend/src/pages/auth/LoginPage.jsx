@@ -1,7 +1,8 @@
 import rabbitVideo from "../../assets/videos/LoginPageVideo.mp4"
 import { useNavigate } from "react-router-dom"
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { loginUser } from "../../services/auth";
+import { AuthContext } from "../../context/AuthContext";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -9,6 +10,9 @@ function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [restoredMessage, setRestoredMessage] = useState("")
+
+  const {setCurrentUser} = useContext(AuthContext)
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -19,7 +23,16 @@ function LoginPage() {
     try {
       const data = await loginUser({ email, password })
       localStorage.setItem("token", data.token)
-      navigate("/dashboard")
+      setCurrentUser(data.user)
+
+      if (data.accountRestored) {
+        setRestoredMessage("Welcome back — your account has been restored.")
+        setTimeout(() => {
+          navigate(`/dashboard/${data.user.role}`)
+        }, 2500)
+      } else {
+        navigate(`/dashboard/${data.user.role}`)
+      }
     } catch (error) {
       setError(error.response?.data?.message || "Something went wrong")
     }
@@ -46,36 +59,44 @@ function LoginPage() {
         
         <h1 className="text-white text-3xl font-bold mb-8">Welcome Back</h1>
 
-        <input 
-          placeholder="abc@gmail.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-4 outline-none" 
-        />
+        {restoredMessage ? (
+          <div className="bg-green-500/20 border border-green-400/40 rounded-lg px-4 py-3 text-green-200 text-sm mb-4">
+            {restoredMessage}
+          </div>
+        ) : (
+          <>
+            <input 
+              placeholder="abc@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-4 outline-none" 
+            />
 
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none" 
-        />
-        
-        {error && (
-          <p className="text-red-400 text-sm mb-4">{error}</p>
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none" 
+            />
+            
+            {error && (
+              <p className="text-red-400 text-sm mb-4">{error}</p>
+            )}
+
+            <button 
+              onClick={handleLogin}
+              className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors">
+              Login
+            </button>
+
+            <p className="text-white/60 text-center mt-6">
+              Don't have an account? <span onClick={() => navigate("/register")} className="text-white cursor-pointer">Register now</span>
+            </p>
+          </>
         )}
-
-        <button 
-          onClick={handleLogin}
-          className="w-full bg-green-800 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition-colors">
-          Login
-        </button>
-
-        <p className="text-white/60 text-center mt-6">
-          Don't have an account? <span onClick={() => navigate("/register")} className="text-white cursor-pointer">Register now</span>
-        </p>
 
       </div>
 
