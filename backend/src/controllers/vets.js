@@ -177,38 +177,6 @@ const getPendingVerifications = async (req, res) => {
   }
 };
 
-const updateVerifyStatus = async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admins can update verification status' });
-    }
-
-    const { action, rejectionReason } = req.body;
-    const vet = await Vet.findById(req.params.id);
-    if (!vet) {
-      return res.status(404).json({ message: 'Vet not found' });
-    }
-
-    if (action === 'approve') {
-      vet.verificationStatus = 'verified';
-      vet.isVerified = true;
-      vet.rejectionReason = undefined;
-    } else if (action === 'reject') {
-      vet.verificationStatus = 'rejected';
-      vet.isVerified = false;
-      vet.rejectionReason = rejectionReason || 'No reason provided';
-    } else {
-      return res.status(400).json({ message: "action must be 'approve' or 'reject'" });
-    }
-
-    vet.reviewedAt = new Date();
-    await vet.save();
-    res.status(200).json(vet);
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
 module.exports = {
   vetApplicationController,
   getVetsController,
@@ -217,5 +185,4 @@ module.exports = {
   updateOwnVetProfileController,
   submitVerification,
   getPendingVerifications,
-  updateVerifyStatus,
 };

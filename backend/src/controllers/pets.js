@@ -69,9 +69,11 @@ const getPetByIdController = async (req, res) => {
 
 const updatePetController = async (req, res) => {
   try {
+    const { name, species, breed, age, weight } = req.body;
+
     const pet = await Pet.findOneAndUpdate(
       { _id: req.params.id, owner: req.user.id },
-      req.body,
+      { name, species, breed, age, weight },
       { new: true }
     );
     if (!pet) {

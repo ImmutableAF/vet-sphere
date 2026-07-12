@@ -16,6 +16,7 @@ export default defineConfig({
       "/vets": "http://localhost:5000",
       "/appointments": "http://localhost:5000",
       "/admin": "http://localhost:5000",
+      "/users": "http://localhost:5000",
     }
   }
 })

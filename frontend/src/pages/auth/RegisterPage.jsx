@@ -16,6 +16,8 @@ function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [phone, setPhone] = useState("")
   const [specialization, setSpecialization] = useState("")
   const [licenseNumber, setLicenseNumber] = useState("")
@@ -145,47 +147,69 @@ const handleRegister = async () => {
               <p className="text-red-400 text-sm mt-1 mb-3">{errors.email}</p>
             )}
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                const result = validatePassword(e.target.value)
-                setErrors(prev => ({
-                  ...prev, password: result.message
-                }))
-              }}
-              onBlur={() => setTouched(prev => ({
-                ...prev, password: true
-              }))}
-              onKeyDown={handleKeyDownPhase1}
-              className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
-            />
-            {touched.password && errors.password && (
-              <p className="text-red-400 text-sm mt-1 mb-3">{errors.password}</p>
-            )}
+            <div className="relative mb-1">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  const result = validatePassword(e.target.value)
+                  setErrors(prev => ({
+                    ...prev, password: result.message
+                  }))
+                }}
+                onBlur={() => setTouched(prev => ({
+                  ...prev, password: true
+                }))}
+                onKeyDown={handleKeyDownPhase1}
+                className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 pr-16 text-white placeholder-white/50 outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white text-sm"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            <div className="mb-5">
+              {touched.password && errors.password && (
+                <p className="text-red-400 text-sm mt-1">{errors.password}</p>
+              )}
+            </div>
 
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value)
-                const result = validateConfirmPassword(e.target.value, password)
-                setErrors(prev => ({
-                  ...prev, confirmPassword: result.message
-                }))
-              }}
-              onBlur={() => setTouched(prev => ({
-                ...prev, confirmPassword: true
-              }))}
-              onKeyDown={handleKeyDownPhase1}
-              className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 text-white placeholder-white/50 mb-6 outline-none"
-            />
-            {touched.confirmPassword && errors.confirmPassword && (
-              <p className="text-red-400 text-sm mt-1 mb-3">{errors.confirmPassword}</p>
-            )}
+            <div className="relative mb-1">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value)
+                  const result = validateConfirmPassword(e.target.value, password)
+                  setErrors(prev => ({
+                    ...prev, confirmPassword: result.message
+                  }))
+                }}
+                onBlur={() => setTouched(prev => ({
+                  ...prev, confirmPassword: true
+                }))}
+                onKeyDown={handleKeyDownPhase1}
+                className="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-3 pr-16 text-white placeholder-white/50 outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white text-sm"
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            <div className="mb-5">
+              {touched.confirmPassword && errors.confirmPassword && (
+                <p className="text-red-400 text-sm mt-1">{errors.confirmPassword}</p>
+              )}
+            </div>
 
             {error && (
               <p className="text-red-400 text-sm mb-4">{error}</p>
