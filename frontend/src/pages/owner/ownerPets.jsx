@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { PawPrint, Dna, Cake, Weight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import HighlightGrid from "@/components/ui/HighlightGrid"
+import HighlightGrid from "@/components/ui/highlightgrid"
 import { getPets, deletePet, createPet } from "@/services/pets"
 
 const GRID_PALETTE = [
