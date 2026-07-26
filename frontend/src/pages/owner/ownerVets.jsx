@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getVets } from "../../services/vets"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 function OwnerVets() {
   const navigate = useNavigate()
@@ -10,11 +11,8 @@ function OwnerVets() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const vetColors = [
-    { bg: "#E7F0E5", color: "#4F7A57" },
-    { bg: "#EDE7F7", color: "#6F5FA3" },
-    { bg: "#FBE9DD", color: "#B5703B" },
-  ]
+  const glassCard = "backdrop-blur-xl bg-white/40 border border-white/60 shadow-lg rounded-2xl"
+  const backgroundStyle = { background: "linear-gradient(135deg, #C9B6E4 0%, #E8DFF5 50%, #D8CDEF 100%)" }
 
   useEffect(() => {
     const fetchVets = async () => {
@@ -37,85 +35,99 @@ function OwnerVets() {
 
   const getInitials = (name) => name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() ?? "VT"
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-[#9C968A] text-sm">Loading vets...</div>
-    </div>
-  )
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center p-0 -m-8" style={backgroundStyle}>
+        <p className="text-[#3D3A34]">Loading vets...</p>
+      </div>
+    )
+  }
 
-  if (error) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-red-400 text-sm">{error}</div>
-    </div>
-  )
+  if (error) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center p-0 -m-8" style={backgroundStyle}>
+        <p className="text-red-800 bg-white/50 px-4 py-2 rounded-xl">{error}</p>
+      </div>
+    )
+  }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-[#3D3A34]">Find a vet</h2>
-        <button
-          onClick={() => navigate("/dashboard/owner")}
-          className="text-sm font-medium text-[#9A6F4E] hover:underline"
-        >
-          Back to overview
-        </button>
-      </div>
+    <div className="w-screen h-screen overflow-y-auto p-0 -m-8" style={backgroundStyle}>
+      <div className="flex flex-col gap-6 max-w-4xl mx-auto p-8">
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-[#EDE7F7] rounded-3xl p-6">
-          <div className="text-4xl font-bold text-[#6F5FA3]">{vets.length}</div>
-          <div className="text-sm font-medium text-[#8B7BC0] mt-2">Vets available</div>
+        {/* Header section */}
+        <div className={`${glassCard} px-8 py-6 flex items-center justify-between`}>
+          <h1 className="text-2xl font-semibold text-[#3D3A34]">Find a vet</h1>
+          <button
+            onClick={() => navigate("/dashboard/owner")}
+            className="text-sm font-medium px-4 py-2 rounded-full bg-white/50 text-[#5B4B8A] hover:bg-white/70 transition-colors whitespace-nowrap"
+          >
+            Back to overview
+          </button>
         </div>
-        <div className="bg-[#E7F0E5] rounded-3xl p-6">
-          <div className="text-4xl font-bold text-[#4F7A57]">{filtered.length}</div>
-          <div className="text-sm font-medium text-[#6B9072] mt-2">Matching search</div>
-        </div>
-      </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-3 bg-white border border-[#EBE4D6] rounded-2xl px-5 py-3.5 mb-6">
-        <span className="text-[#9C968A] text-lg">🔍</span>
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name or specialization..."
-          className="bg-transparent outline-none text-sm text-[#3D3A34] flex-1 placeholder-[#C4BCB0]"
-        />
-      </div>
-
-      {/* Vet cards */}
-      {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl px-5 py-10 border border-[#F2EDE2] text-center text-sm text-[#9C968A]">
-          No vets found matching "{search}"
+        {/* Search */}
+        <div className={`${glassCard} flex items-center gap-3 px-5 py-3.5`}>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or specialization..."
+            className="bg-transparent outline-none text-sm text-[#3D3A34] flex-1 placeholder-[#8B7BC0]"
+          />
         </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {filtered.map((vet, i) => {
-            const { bg, color } = vetColors[i % vetColors.length]
-            return (
-              <div key={vet._id} className="flex items-center gap-4 bg-white rounded-2xl px-5 py-4 border border-[#F2EDE2] hover:border-[#D8CFC0] transition-colors cursor-pointer">
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-base font-semibold flex-shrink-0"
-                  style={{ background: bg, color }}
-                >
-                  {getInitials(vet.name)}
+
+        {/* Vet list */}
+        <div className={`${glassCard} px-8 py-6`}>
+          <ScrollArea className="h-[500px] w-full">
+            <div className="space-y-4 pr-4">
+              {filtered.length === 0 ? (
+                <div className="flex h-24 w-full items-center justify-center rounded-xl bg-white/50 text-sm text-[#5B4B8A]">
+                  No vets found matching "{search}"
                 </div>
-                <div className="flex-1">
-                  <div className="text-sm font-semibold text-[#3D3A34]">{vet.name}</div>
-                  <div className="text-xs text-[#9C968A] mt-1">{vet.specialization}</div>
-                </div>
-                <button
-                  onClick={() => navigate("/dashboard/owner/book")}
-                  className="text-sm font-semibold px-5 py-2 rounded-full bg-[#E7F0E5] text-[#4F7A57] hover:bg-[#D6E8D4] transition-colors whitespace-nowrap"
-                >
-                  Book
-                </button>
-              </div>
-            )
-          })}
+              ) : (
+                filtered.map((vet) => (
+                  <div
+                    key={vet._id}
+                    className="flex min-h-[112px] w-full items-center gap-5 rounded-xl bg-white/50 hover:bg-white/80 transition-colors border border-white/50 p-4 shadow-sm cursor-pointer"
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-[#5B4B8A] flex items-center justify-center flex-shrink-0">
+                      <span className="text-base font-semibold text-white">
+                        {getInitials(vet.name)}
+                      </span>
+                    </div>
+
+                    <div className="flex-1 overflow-hidden flex flex-col justify-center gap-1">
+                      <div className="text-base font-semibold text-[#3D3A34] truncate">
+                        {vet.name}
+                      </div>
+                      <div className="text-xs text-[#5B4B8A] truncate">
+                        {vet.specialization}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-[#5B4B8A]">
+                        <span className="font-semibold bg-white/70 px-2 py-1 rounded text-[#3D3A34]">
+                          {vet.experienceYears != null ? `${vet.experienceYears} yrs experience` : "Experience not listed"}
+                        </span>
+                        <span className="opacity-50">•</span>
+                        <span className="truncate">
+                          {vet.city ?? "Location not listed"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => navigate("/dashboard/owner/book")}
+                      className="text-sm font-semibold px-5 py-2 rounded-full bg-[#8A6FC7] text-white hover:bg-[#7A5DB8] transition-colors whitespace-nowrap flex-shrink-0"
+                    >
+                      Book
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
         </div>
-      )}
+
+      </div>
     </div>
   )
 }

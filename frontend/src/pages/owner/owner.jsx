@@ -40,15 +40,16 @@ function OwnerDashboard() {
       <div style={{ position: "absolute", inset: 0, zIndex: 30, pointerEvents: "none" }}>
         <StaggeredMenu
           position="right"
+          isFixed={true}
           items={menuItems}
           displaySocials={false}
           displayItemNumbering={false}
           menuButtonColor="#3D3A34"
           openMenuButtonColor="#3D3A34"
           changeMenuColorOnOpen={true}
-          colors={["#E7F0E5", "#FBF8F3"]}
+          colors={["#D8CDEF", "#FBF8F3"]}
           logoText="VetSphere"
-          accentColor="#7FA88A"
+          accentColor="#5B4B8A"
           footerItem={{
             label: "Logout",
             onClick: handleLogoutClick,

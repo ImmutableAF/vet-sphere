@@ -1,239 +1,219 @@
-import { useEffect, useState } from "react"
-import { getAllVets, updateVetVerification } from "../../services/admin"
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar } from "lucide-react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { EffectCards, Navigation } from "swiper/modules"
+import "swiper/css/effect-cards"
+import "swiper/css/navigation"
+import "swiper/css"
+import { getAllVets } from "../../services/admin"
 
-const TABS = [
-  { key: "all", label: "All" },
-  { key: "pending", label: "Pending" },
-  { key: "verified", label: "Verified" },
-  { key: "rejected", label: "Rejected" },
-  { key: "not_submitted", label: "Not Submitted" },
-]
-
-const STATUS_STYLES = {
-  pending: "bg-yellow-100 text-yellow-800",
-  verified: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
-  not_submitted: "bg-gray-100 text-gray-600",
-}
 
 function formatDate(value) {
   if (!value) return "—"
   return new Date(value).toLocaleDateString()
 }
 
+function initials(name) {
+  if (!name) return "?"
+  return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase()
+}
+
+const STATUS_SECTIONS = [
+  { key: "pending", label: "Pending", badgeBg: "bg-[#E0B84C]", badgeText: "text-white" },
+  { key: "verified", label: "Verified", badgeBg: "bg-green-600", badgeText: "text-white" },
+  { key: "rejected", label: "Rejected", badgeBg: "bg-red-700", badgeText: "text-white" },
+  { key: "not_submitted", label: "Not Submitted", badgeBg: "bg-gray-500", badgeText: "text-white" },
+]
+
+function VetCard({ vet, badgeBg, badgeText, label, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white border border-[#F0EBE0] rounded-2xl overflow-hidden shadow-md cursor-pointer w-full h-full flex flex-col"
+    >
+      <div className="flex justify-between items-start px-6 py-5 bg-[#EDE7F6]">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-full bg-[#5B4B8A] text-white flex items-center justify-center font-semibold text-base shrink-0">
+            {initials(vet.name)}
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-xl font-semibold text-[#3D3A34] leading-tight truncate">{vet.name}</h2>
+            <p className="text-sm text-[#5B4B8A] mt-0.5 truncate">
+              {vet.specialization || "No specialization listed"}
+            </p>
+          </div>
+        </div>
+        <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-medium leading-none shrink-0 ${badgeBg} ${badgeText}`}>
+          {label}
+        </span>
+      </div>
+
+      <div className="px-6 py-5 flex flex-col flex-1 gap-4">
+        <div className="space-y-3 text-[15px] text-[#3D3A34]">
+          <div className="flex items-center gap-2.5">
+            <MapPin size={17} className="text-[#8A8578] shrink-0" />
+            <span>{vet.city || "City not listed"}</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Clock size={17} className="text-[#8A8578] shrink-0" />
+            <span>{vet.experienceYears ?? "—"} years of experience</span>
+          </div>
+        </div>
+
+        <div className="mt-auto pt-4 border-t border-[#F0EBE0] flex items-center gap-2 text-sm text-[#8A8578]">
+          <Calendar size={14} className="shrink-0" />
+          <span>Submitted {formatDate(vet.submittedAt)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ManageVets() {
+  const navigate = useNavigate()
   const [vets, setVets] = useState([])
-  const [activeTab, setActiveTab] = useState("pending")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [rejectingId, setRejectingId] = useState(null)
-  const [rejectionReason, setRejectionReason] = useState("")
-  const [actionLoadingId, setActionLoadingId] = useState(null)
-
-  const loadVets = async () => {
-    try {
-      setLoading(true)
-      const data = await getAllVets()
-      setVets(data)
-      setError("")
-    } catch (err) {
-      setError("Failed to load vets")
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [activeStatus, setActiveStatus] = useState("pending")
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
+    const loadVets = async () => {
+      try {
+        setLoading(true)
+        const data = await getAllVets()
+        setVets(data)
+        setError("")
+      } catch (err) {
+        setError("Failed to load vets")
+      } finally {
+        setLoading(false)
+      }
+    }
     loadVets()
   }, [])
 
-  const filteredVets =
-    activeTab === "all"
-      ? vets
-      : vets.filter((v) => v.verificationStatus === activeTab)
+  const activeSection = STATUS_SECTIONS.find((s) => s.key === activeStatus)
+  const filteredVets = useMemo(
+    () => vets.filter((v) => v.verificationStatus === activeStatus),
+    [vets, activeStatus]
+  )
 
-  const handleApprove = async (id) => {
-    try {
-      setActionLoadingId(id)
-      const { vet } = await updateVetVerification(id, { verificationStatus: "verified" })
-      setVets((prev) => prev.map((v) => (v._id === id ? vet : v)))
-    } catch (err) {
-      setError("Failed to approve vet")
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
-
-  const startReject = (id) => {
-    setRejectingId(id)
-    setRejectionReason("")
-  }
-
-  const cancelReject = () => {
-    setRejectingId(null)
-    setRejectionReason("")
-  }
-
-  const confirmReject = async (id) => {
-    try {
-      setActionLoadingId(id)
-      const { vet } = await updateVetVerification(id, {
-        verificationStatus: "rejected",
-        rejectionReason: rejectionReason.trim(),
-      })
-      setVets((prev) => prev.map((v) => (v._id === id ? vet : v)))
-      setRejectingId(null)
-      setRejectionReason("")
-    } catch (err) {
-      setError("Failed to reject vet")
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
+  const onOpenVet = (id) => navigate(`/dashboard/admin/vets/${id}`)
+  const backgroundStyle = { background: "linear-gradient(135deg, #C9B6E4 0%, #E8DFF5 50%, #D8CDEF 100%)" }
 
   if (loading) {
-    return <div className="text-[#3D3A34]">Loading vets...</div>
+    return (
+      <div className="w-screen h-screen flex items-center justify-center -m-8" style={backgroundStyle}>
+        <p className="text-[#3D3A34]">Loading vets...</p>
+      </div>
+    )
   }
 
   return (
-    <div className="max-w-4xl">
-      <h1 className="text-2xl font-semibold text-[#3D3A34] mb-6">Manage Vets</h1>
+    <div className="w-screen h-screen overflow-y-auto -m-8" style={backgroundStyle}>
+      <div className="max-w-3xl mx-auto p-8">
+        <h1 className="text-2xl font-semibold text-[#3D3A34] mb-2">Manage Vets</h1>
 
-      {error && (
-        <div className="mb-4 px-4 py-2 rounded-lg bg-red-100 text-red-700 text-sm">
-          {error}
-        </div>
-      )}
-
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-              activeTab === tab.key
-                ? "bg-[#7FA88A] text-white"
-                : "bg-white text-[#3D3A34] border border-[#F0EBE0]"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {filteredVets.length === 0 && (
-        <p className="text-[#8A8578]">No vets in this category.</p>
-      )}
-
-      <div className="flex flex-col gap-4">
-        {filteredVets.map((vet) => (
-          <div
-            key={vet._id}
-            className="bg-white border border-[#F0EBE0] rounded-2xl p-6"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h2 className="text-lg font-semibold text-[#3D3A34]">{vet.name}</h2>
-                <p className="text-sm text-[#8A8578]">{vet.specialization || "No specialization listed"}</p>
-              </div>
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  STATUS_STYLES[vet.verificationStatus] || STATUS_STYLES.not_submitted
-                }`}
-              >
-                {vet.verificationStatus.replace("_", " ")}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-[#3D3A34] mb-3">
-              <p><span className="text-[#8A8578]">City:</span> {vet.city || "—"}</p>
-              <p><span className="text-[#8A8578]">Experience:</span> {vet.experienceYears ?? "—"} yrs</p>
-              <p><span className="text-[#8A8578]">License #:</span> {vet.licenseNumber || "—"}</p>
-              <p><span className="text-[#8A8578]">Phone:</span> {vet.contactInfo?.phone || "—"}</p>
-              <p><span className="text-[#8A8578]">Email:</span> {vet.contactInfo?.email || "—"}</p>
-            </div>
-
-            {vet.verificationDetails && (
-              <div className="text-sm text-[#3D3A34] mb-3 border-t border-[#F0EBE0] pt-3">
-                <p><span className="text-[#8A8578]">Issuing authority:</span> {vet.verificationDetails.licenseIssuingAuthority || "—"}</p>
-                <p><span className="text-[#8A8578]">Issue date:</span> {formatDate(vet.verificationDetails.licenseIssueDate)}</p>
-                {vet.verificationDetails.additionalNotes && (
-                  <p><span className="text-[#8A8578]">Notes:</span> {vet.verificationDetails.additionalNotes}</p>
-                )}
-              </div>
-            )}
-
-            {vet.proofDocumentPath && (
-              <a
-                href={`http://localhost:5000${vet.proofDocumentPath}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm text-[#7FA88A] underline"
-              >
-                View proof document
-              </a>
-            )}
-
-            {vet.verificationStatus === "rejected" && vet.rejectionReason && (
-              <p className="mt-2 text-sm text-red-700">
-                <span className="text-[#8A8578]">Rejection reason:</span> {vet.rejectionReason}
-              </p>
-            )}
-
-            <p className="mt-2 text-xs text-[#8A8578]">
-              Submitted: {formatDate(vet.submittedAt)} · Reviewed: {formatDate(vet.reviewedAt)}
-            </p>
-
-            {vet.verificationStatus !== "not_submitted" && (
-              <div className="mt-4 flex gap-3 items-center">
-                {vet.verificationStatus !== "verified" && (
-                  <button
-                    onClick={() => handleApprove(vet._id)}
-                    disabled={actionLoadingId === vet._id}
-                    className="px-4 py-2 rounded-full bg-[#7FA88A] text-white text-sm font-medium disabled:opacity-50"
-                  >
-                    Approve
-                  </button>
-                )}
-
-                {vet.verificationStatus !== "rejected" && rejectingId !== vet._id && (
-                  <button
-                    onClick={() => startReject(vet._id)}
-                    disabled={actionLoadingId === vet._id}
-                    className="px-4 py-2 rounded-full bg-red-100 text-red-700 text-sm font-medium disabled:opacity-50"
-                  >
-                    Reject
-                  </button>
-                )}
-
-                {rejectingId === vet._id && (
-                  <div className="flex gap-2 items-center flex-1">
-                    <input
-                      type="text"
-                      value={rejectionReason}
-                      onChange={(e) => setRejectionReason(e.target.value)}
-                      placeholder="Reason for rejection"
-                      className="flex-1 px-3 py-2 rounded-full border border-[#F0EBE0] text-sm"
-                    />
-                    <button
-                      onClick={() => confirmReject(vet._id)}
-                      disabled={actionLoadingId === vet._id || !rejectionReason.trim()}
-                      className="px-4 py-2 rounded-full bg-red-600 text-white text-sm font-medium disabled:opacity-50"
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      onClick={cancelReject}
-                      className="px-4 py-2 rounded-full bg-white border border-[#F0EBE0] text-sm font-medium"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+        {error && (
+          <div className="mb-6 px-4 py-2 rounded-lg bg-red-100 text-red-700 text-sm">
+            {error}
           </div>
-        ))}
+        )}
+
+        <div className="flex gap-3 flex-wrap mb-8">
+          {STATUS_SECTIONS.map((section) => (
+            <button
+              key={section.key}
+              onClick={() => {
+                setActiveStatus(section.key)
+                setShowAll(false)
+              }}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${
+                activeStatus === section.key
+                  ? "bg-[#5B4B8A] text-white border-2 border-[#5B4B8A]"
+                  : "bg-white/50 text-[#3D3A34] border border-white/70"
+              }`}
+            >
+              {section.label}
+            </button>
+          ))}
+        </div>
+
+        <p className="text-center text-2xl font-semibold tracking-wide text-[#5B4B8A] mb-6 uppercase">
+          {activeSection.label}
+        </p>
+
+        {filteredVets.length === 0 ? (
+          <p className="text-center text-[#5B4B8A]/70 text-sm">No vets in this category.</p>
+        ) : showAll ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredVets.map((vet) => (
+              <div key={vet._id} className="h-[300px]">
+                <VetCard
+                  vet={vet}
+                  label={activeSection.label}
+                  badgeBg={activeSection.badgeBg}
+                  badgeText={activeSection.badgeText}
+                  onClick={() => onOpenVet(vet._id)}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-4">
+            <button
+              className={`swiper-nav-prev-${activeStatus} w-9 h-9 rounded-full border border-white/70 bg-white/50 flex items-center justify-center text-[#3D3A34] shrink-0`}
+              aria-label="Previous"
+            >
+              <ChevronLeft size={18} />
+            </button>
+
+            <Swiper
+              key={activeStatus}
+              effect="cards"
+              grabCursor={true}
+              loop={filteredVets.length > 1}
+              modules={[EffectCards, Navigation]}
+              navigation={{
+                nextEl: `.swiper-nav-next-${activeStatus}`,
+                prevEl: `.swiper-nav-prev-${activeStatus}`,
+              }}
+              className="w-[320px] h-[380px]"
+            >
+              {filteredVets.map((vet) => (
+                <SwiperSlide key={vet._id} className="rounded-2xl">
+                  <VetCard
+                    vet={vet}
+                    label={activeSection.label}
+                    badgeBg={activeSection.badgeBg}
+                    badgeText={activeSection.badgeText}
+                    onClick={() => onOpenVet(vet._id)}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            <button
+              className={`swiper-nav-next-${activeStatus} w-9 h-9 rounded-full border border-white/70 bg-white/50 flex items-center justify-center text-[#3D3A34] shrink-0`}
+              aria-label="Next"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        )}
+
+        {filteredVets.length > 0 && (
+          <div className="flex justify-end mt-8 sticky bottom-4">
+            <button
+              onClick={() => setShowAll((s) => !s)}
+              className="px-4 py-2 rounded-full bg-white/80 backdrop-blur border border-white/70 shadow-md text-sm font-medium text-[#3D3A34]"
+            >
+              {showAll ? "Show less" : "Show more"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

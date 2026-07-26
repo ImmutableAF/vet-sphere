@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
+import LandingPage from "../components/ui/landing/LandingPage"
 import LoginPage from "../pages/auth/LoginPage"
 import RegisterPage from "../pages/auth/RegisterPage"
 import OwnerDashboard from "../pages/owner/owner"
@@ -17,6 +18,7 @@ import VerifyVetPage from "../pages/vet/verifyVetPage"
 import EditVetProfile from "../pages/vet/editVetProfile"
 import AdminDashboardLayout from "../pages/admin/admin"
 import ManageVets from "../pages/admin/manageVets"
+import VetReviewPage from "../pages/admin/vetReview"
 import DeleteAccountPage from "../pages/shared/deleteAccount"
 
 function AppRouter() {
@@ -28,12 +30,13 @@ function AppRouter() {
 
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
       <Route
         path="/dashboard/owner"
-        element={isOwner ? <OwnerDashboard /> : <Navigate to="/" />}
+        element={isOwner ? <OwnerDashboard /> : <Navigate to="/login" />}
       >
         <Route index element={<OwnerOverview />} />
         <Route path="pets" element={<OwnerPets />} />
@@ -45,7 +48,7 @@ function AppRouter() {
 
       <Route
         path="/dashboard/vet"
-        element={isVet ? <VetDashboardLayout /> : <Navigate to="/" />}
+        element={isVet ? <VetDashboardLayout /> : <Navigate to="/login" />}
       >
         <Route index element={<VetAppointments />} />
         <Route path="appointments" element={<VetAppointments />} />
@@ -58,10 +61,11 @@ function AppRouter() {
 
       <Route
         path="/dashboard/admin"
-        element={isAdmin ? <AdminDashboardLayout /> : <Navigate to="/" />}
+        element={isAdmin ? <AdminDashboardLayout /> : <Navigate to="/login" />}
       >
         <Route index element={<ManageVets />} />
         <Route path="vets" element={<ManageVets />} />
+        <Route path="vets/:id" element={<VetReviewPage />} />
       </Route>
     </Routes>
   )

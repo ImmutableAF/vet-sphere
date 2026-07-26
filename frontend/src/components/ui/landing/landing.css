@@ -1,0 +1,28 @@
+@keyframes vs-pulse-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-300px); }
+}
+
+@keyframes vs-grain-shift {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -2%); }
+  20% { transform: translate(-3%, 1%); }
+  30% { transform: translate(2%, -3%); }
+  40% { transform: translate(-2%, 3%); }
+  50% { transform: translate(3%, 1%); }
+  60% { transform: translate(-1%, 2%); }
+  70% { transform: translate(1%, -1%); }
+  80% { transform: translate(-3%, -2%); }
+  90% { transform: translate(2%, 2%); }
+}
+
+.vs-grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+  animation: vs-grain-shift 1.4s steps(8) infinite;
+}
+
+.vs-serif {
+  font-family: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  font-optical-sizing: auto;
+}

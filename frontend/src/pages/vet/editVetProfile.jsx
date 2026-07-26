@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Stethoscope,
+  MapPin,
+  Phone,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 import { getMyVetProfile, updateMyVetProfile } from "../../services/vets";
 
 function validateField(name, value) {
@@ -27,6 +35,52 @@ function validateField(name, value) {
     default:
       return "";
   }
+}
+
+const glassCard = "backdrop-blur-xl bg-white/40 border border-white/60 shadow-lg rounded-2xl";
+const backgroundStyle = { background: "linear-gradient(135deg, #C9B6E4 0%, #E8DFF5 50%, #D8CDEF 100%)" };
+
+function Field({ label, name, value, onChange, error, type = "text", icon: Icon, disabled, hint, min }) {
+  return (
+    <div>
+      <label className="flex items-center gap-1.5 text-sm font-medium text-[#3D3A34] mb-1.5">
+        {Icon && <Icon size={14} className="text-[#5B4B8A]" />}
+        {label}
+        {hint && <span className="text-[#8A8578] font-normal">{hint}</span>}
+      </label>
+      {error && <p className="text-xs text-red-700 mb-1">{error}</p>}
+      <input
+        type={type}
+        name={name}
+        min={min}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        readOnly={disabled}
+        className={`w-full rounded-xl border px-4 py-2.5 text-sm text-[#3D3A34] transition focus:outline-none focus:ring-2 ${
+          disabled
+            ? "bg-white/30 border-white/50 text-[#8A8578] cursor-not-allowed"
+            : error
+            ? "border-red-400 bg-white/60 focus:ring-red-200"
+            : "border-white/60 bg-white/60 focus:ring-[#D8CDEF] focus:border-[#8A6FC7]"
+        }`}
+      />
+    </div>
+  );
+}
+
+function SectionCard({ icon: Icon, title, children }) {
+  return (
+    <div className={`${glassCard} px-8 py-6`}>
+      <div className="flex items-center gap-2 mb-5">
+        <Icon size={14} className="text-[#5B4B8A]" />
+        <h3 className="text-xs uppercase tracking-wide text-[#5B4B8A] font-semibold">
+          {title}
+        </h3>
+      </div>
+      <div className="space-y-5">{children}</div>
+    </div>
+  );
 }
 
 export default function EditVetProfile() {
@@ -108,149 +162,136 @@ export default function EditVetProfile() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <p className="text-sm text-gray-400">Loading your profile…</p>
+      <div className="w-screen h-screen flex items-center justify-center" style={backgroundStyle}>
+        <p className="text-[#3D3A34]">Loading your profile...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-6">
-        Edit Profile
-      </h1>
+    <div className="w-screen h-screen overflow-y-auto p-0 -m-8" style={backgroundStyle}>
+      <div className="flex flex-col gap-6 max-w-3xl mx-auto p-8">
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 shadow-sm space-y-6">
+        <button
+          onClick={() => navigate("/dashboard/vet/profile")}
+          className={`self-start px-5 py-2.5 text-sm font-medium text-[#3D3A34] ${glassCard}`}
+        >
+          ← Back to profile
+        </button>
+
+        <div className={`${glassCard} px-8 py-6 flex justify-between items-center`}>
+          <div>
+            <h1 className="text-2xl font-semibold text-[#3D3A34]">Edit Profile</h1>
+            <p className="text-sm text-[#5B4B8A] mt-1">
+              Keep your professional details up to date
+            </p>
+          </div>
+        </div>
+
         {error && (
-          <div className="bg-red-50 text-red-700 text-sm rounded-2xl p-4">
+          <div className={`px-4 py-3 text-red-800 text-sm ${glassCard}`}>
             {error}
           </div>
         )}
         {successMessage && (
-          <div className="bg-[#E7F0E5] text-[#4C7A5A] text-sm rounded-2xl p-4">
+          <div className={`px-4 py-3 text-green-800 text-sm ${glassCard}`}>
             {successMessage}
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-          {errors.name && <p className="text-xs text-[#C0392B] mb-1">{errors.name}</p>}
-          <input
-            type="text"
-            name="name"
-            value={fields.name}
-            onChange={handleChange}
-            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              errors.name ? "border-[#C0392B] focus:ring-red-200" : "border-gray-200 focus:ring-[#E7F0E5]"
-            }`}
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <SectionCard icon={User} title="Identity">
+            <Field
+              label="Name"
+              name="name"
+              icon={User}
+              value={fields.name}
+              onChange={handleChange}
+              error={errors.name}
+            />
+            <Field
+              label="License Number"
+              name="licenseNumber"
+              icon={ShieldCheck}
+              hint="(locked after verification)"
+              value={fields.licenseNumber}
+              onChange={() => {}}
+              disabled
+            />
+          </SectionCard>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            License Number <span className="text-gray-400 font-normal">(locked after verification)</span>
-          </label>
-          <input
-            type="text"
-            name="licenseNumber"
-            value={fields.licenseNumber}
-            disabled
-            readOnly
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
-          />
-        </div>
+          <SectionCard icon={Stethoscope} title="Professional Details">
+            <Field
+              label="Specialization"
+              name="specialization"
+              icon={Stethoscope}
+              value={fields.specialization}
+              onChange={handleChange}
+              error={errors.specialization}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Field
+                label="Years of Experience"
+                name="experienceYears"
+                type="number"
+                min="0"
+                value={fields.experienceYears}
+                onChange={handleChange}
+                error={errors.experienceYears}
+              />
+              <Field
+                label="City"
+                name="city"
+                icon={MapPin}
+                value={fields.city}
+                onChange={handleChange}
+                error={errors.city}
+              />
+            </div>
+          </SectionCard>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
-          {errors.specialization && <p className="text-xs text-[#C0392B] mb-1">{errors.specialization}</p>}
-          <input
-            type="text"
-            name="specialization"
-            value={fields.specialization}
-            onChange={handleChange}
-            placeholder="e.g. General Practice, Surgery, Dermatology"
-            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              errors.specialization ? "border-[#C0392B] focus:ring-red-200" : "border-gray-200 focus:ring-[#E7F0E5]"
-            }`}
-          />
-        </div>
+          <SectionCard icon={Phone} title="Contact">
+            <Field
+              label="Phone"
+              name="phone"
+              icon={Phone}
+              value={fields.phone}
+              onChange={handleChange}
+              error={errors.phone}
+            />
+            <Field
+              label="Contact Email"
+              name="email"
+              type="email"
+              icon={Mail}
+              value={fields.email}
+              onChange={handleChange}
+              error={errors.email}
+            />
+          </SectionCard>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
-          {errors.experienceYears && <p className="text-xs text-[#C0392B] mb-1">{errors.experienceYears}</p>}
-          <input
-            type="number"
-            name="experienceYears"
-            min="0"
-            value={fields.experienceYears}
-            onChange={handleChange}
-            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              errors.experienceYears ? "border-[#C0392B] focus:ring-red-200" : "border-gray-200 focus:ring-[#E7F0E5]"
-            }`}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-          {errors.city && <p className="text-xs text-[#C0392B] mb-1">{errors.city}</p>}
-          <input
-            type="text"
-            name="city"
-            value={fields.city}
-            onChange={handleChange}
-            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              errors.city ? "border-[#C0392B] focus:ring-red-200" : "border-gray-200 focus:ring-[#E7F0E5]"
-            }`}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-          {errors.phone && <p className="text-xs text-[#C0392B] mb-1">{errors.phone}</p>}
-          <input
-            type="text"
-            name="phone"
-            value={fields.phone}
-            onChange={handleChange}
-            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              errors.phone ? "border-[#C0392B] focus:ring-red-200" : "border-gray-200 focus:ring-[#E7F0E5]"
-            }`}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
-          {errors.email && <p className="text-xs text-[#C0392B] mb-1">{errors.email}</p>}
-          <input
-            type="email"
-            name="email"
-            value={fields.email}
-            onChange={handleChange}
-            className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 ${
-              errors.email ? "border-[#C0392B] focus:ring-red-200" : "border-gray-200 focus:ring-[#E7F0E5]"
-            }`}
-          />
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={`flex-1 rounded-xl py-3 text-sm font-medium transition ${
-              canSubmit ? "bg-[#7FA88A] text-white hover:bg-[#6d9678]" : "bg-gray-100 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            {saving ? "Saving…" : "Save Changes"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/dashboard/vet/profile")}
-            className="rounded-xl py-3 px-6 text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div className={`${glassCard} px-8 py-6 flex gap-3 items-center`}>
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className={`px-6 py-2.5 rounded-full text-sm font-medium transition ${
+                canSubmit
+                  ? "bg-[#8A6FC7] text-white hover:bg-[#7a5fb5]"
+                  : "bg-white/40 text-[#8A8578] cursor-not-allowed"
+              }`}
+            >
+              {saving ? "Saving…" : "Save Changes"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard/vet/profile")}
+              className="px-6 py-2.5 rounded-full bg-red-900 text-white text-sm font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

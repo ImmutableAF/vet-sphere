@@ -41,9 +41,9 @@ function AdminDashboardLayout() {
           menuButtonColor="#3D3A34"
           openMenuButtonColor="#3D3A34"
           changeMenuColorOnOpen={true}
-          colors={["#E7F0E5", "#FBF8F3"]}
+          colors={["#D8CDEF", "#FBF8F3"]}
           logoText="VetSphere"
-          accentColor="#7FA88A"
+          accentColor="#5B4B8A"
           footerItem={{
             label: "Logout",
             onClick: handleLogoutClick,
@@ -53,7 +53,7 @@ function AdminDashboardLayout() {
 
       <div
         className="absolute inset-0 overflow-y-auto px-8 py-8"
-        style={{ top: "73px", scrollbarWidth: "none" }}
+        style={{ top: "65px", scrollbarWidth: "none" }}
       >
         <Outlet />
       </div>

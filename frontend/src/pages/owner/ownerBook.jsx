@@ -1,3 +1,4 @@
+// src/pages/dashboards/OwnerBook.jsx
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { getPets } from "../../services/pets"
@@ -21,6 +22,10 @@ function OwnerBook() {
     time: "",
     reason: "",
   })
+
+  const glassCard = "backdrop-blur-xl bg-white/40 border border-white/60 shadow-lg rounded-2xl"
+  const backgroundStyle = { background: "linear-gradient(135deg, #C9B6E4 0%, #E8DFF5 50%, #D8CDEF 100%)" }
+  const inputStyle = "bg-white/50 border border-white/60 rounded-xl px-4 py-3 text-sm text-[#3D3A34] outline-none focus:bg-white/70 transition-colors"
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,124 +91,119 @@ function OwnerBook() {
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-[#9C968A] text-sm">Loading...</div>
-    </div>
-  )
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center p-0 -m-8" style={backgroundStyle}>
+        <p className="text-[#3D3A34]">Loading...</p>
+      </div>
+    )
+  }
 
-  if (success) return (
-    <div className="flex flex-col items-center justify-center h-64 gap-4">
-      <div className="text-5xl">✅</div>
-      <div className="text-lg font-semibold text-[#4F7A57]">Appointment requested!</div>
-      <div className="text-sm text-[#9C968A]">Redirecting to overview...</div>
-    </div>
-  )
+  if (success) {
+    return (
+      <div className="w-screen h-screen flex flex-col items-center justify-center gap-4 p-0 -m-8" style={backgroundStyle}>
+        <div className="text-5xl">✅</div>
+        <div className="text-lg font-semibold text-[#3D3A34]">Appointment requested!</div>
+        <div className="text-sm text-[#5B4B8A]">Redirecting to overview...</div>
+      </div>
+    )
+  }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-[#3D3A34]">Book an appointment</h2>
-        <button
-          onClick={() => navigate("/dashboard/owner")}
-          className="text-sm font-medium text-[#9A6F4E] hover:underline"
-        >
-          Back to overview
-        </button>
-      </div>
+    <div className="w-screen h-screen overflow-y-auto p-0 -m-8" style={backgroundStyle}>
+      <div className="flex flex-col gap-6 max-w-4xl mx-auto p-8">
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-[#E7F0E5] rounded-3xl p-6">
-          <div className="text-4xl font-bold text-[#4F7A57]">{vets.length}</div>
-          <div className="text-sm font-medium text-[#6B9072] mt-2">Vets available</div>
-        </div>
-        <div className="bg-[#FBE9DD] rounded-3xl p-6">
-          <div className="text-4xl font-bold text-[#B5703B]">{pets.length}</div>
-          <div className="text-sm font-medium text-[#C68856] mt-2">Your pets</div>
-        </div>
-        <div className="bg-[#EDE7F7] rounded-3xl p-6">
-          <div className="text-4xl font-bold text-[#6F5FA3]">Free</div>
-          <div className="text-sm font-medium text-[#8B7BC0] mt-2">Cancellation</div>
-        </div>
-      </div>
-
-      <div className="bg-white border border-[#F2EDE2] rounded-3xl p-6">
-        {error && (
-          <div className="mb-4 text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            {error}
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-5 mb-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-[#9C968A] font-semibold">Your pet</label>
-            <select
-              value={form.pet}
-              onChange={handleChange("pet")}
-              className="bg-[#FBF8F3] border border-[#EBE4D6] rounded-xl px-4 py-3 text-sm text-[#3D3A34] outline-none"
-            >
-              {pets.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-[#9C968A] font-semibold">Veterinarian</label>
-            <select
-              value={form.vet}
-              onChange={handleChange("vet")}
-              className="bg-[#FBF8F3] border border-[#EBE4D6] rounded-xl px-4 py-3 text-sm text-[#3D3A34] outline-none"
-            >
-              {vets.map(v => <option key={v._id} value={v._id}>{v.name}</option>)}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-[#9C968A] font-semibold">Date</label>
-            <input
-              type="date"
-              value={form.date}
-              onChange={handleChange("date")}
-              min={new Date().toISOString().split("T")[0]}
-              className="bg-[#FBF8F3] border border-[#EBE4D6] rounded-xl px-4 py-3 text-sm text-[#3D3A34] outline-none"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-[#9C968A] font-semibold">Time</label>
-            <select
-              value={form.time}
-              onChange={handleChange("time")}
-              disabled={!form.date}
-              className="bg-[#FBF8F3] border border-[#EBE4D6] rounded-xl px-4 py-3 text-sm text-[#3D3A34] outline-none disabled:opacity-50"
-            >
-              <option value="">Select a time</option>
-              {slots.map((slot) => (
-                <option key={slot.time} value={slot.time} disabled={!slot.available}>
-                  {slot.time} {!slot.available ? "(booked)" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2 col-span-2">
-            <label className="text-xs uppercase tracking-wide text-[#9C968A] font-semibold">Reason for visit</label>
-            <input
-              type="text"
-              value={form.reason}
-              onChange={handleChange("reason")}
-              placeholder="e.g. Annual checkup"
-              className="bg-[#FBF8F3] border border-[#EBE4D6] rounded-xl px-4 py-3 text-sm text-[#3D3A34] outline-none placeholder-[#C4BCB0]"
-            />
-          </div>
+        {/* Header section */}
+        <div className={`${glassCard} px-8 py-6 flex items-center justify-between`}>
+          <h1 className="text-2xl font-semibold text-[#3D3A34]">Book an appointment</h1>
+          <button
+            onClick={() => navigate("/dashboard/owner")}
+            className="text-sm font-medium px-4 py-2 rounded-full bg-white/50 text-[#5B4B8A] hover:bg-white/70 transition-colors whitespace-nowrap"
+          >
+            Back to overview
+          </button>
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="w-full bg-[#7FA88A] hover:bg-[#6E9778] disabled:opacity-60 text-white text-base font-semibold py-4 rounded-xl transition-colors"
-        >
-          {submitting ? "Booking..." : "Request appointment"}
-        </button>
+        {/* Booking form */}
+        <div className={`${glassCard} px-8 py-6`}>
+          {error && (
+            <div className="mb-4 text-sm text-red-800 bg-red-100/70 border border-red-200/60 rounded-xl px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-5 mb-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-wide text-[#5B4B8A] font-semibold">Your pet</label>
+              <select
+                value={form.pet}
+                onChange={handleChange("pet")}
+                className={inputStyle}
+              >
+                {pets.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-wide text-[#5B4B8A] font-semibold">Veterinarian</label>
+              <select
+                value={form.vet}
+                onChange={handleChange("vet")}
+                className={inputStyle}
+              >
+                {vets.map(v => <option key={v._id} value={v._id}>{v.name}</option>)}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-wide text-[#5B4B8A] font-semibold">Date</label>
+              <input
+                type="date"
+                value={form.date}
+                onChange={handleChange("date")}
+                min={new Date().toISOString().split("T")[0]}
+                className={inputStyle}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-wide text-[#5B4B8A] font-semibold">Time</label>
+              <select
+                value={form.time}
+                onChange={handleChange("time")}
+                disabled={!form.date}
+                className={`${inputStyle} disabled:opacity-50`}
+              >
+                <option value="">Select a time</option>
+                {slots.map((slot) => (
+                  <option key={slot.time} value={slot.time} disabled={!slot.available}>
+                    {slot.time} {!slot.available ? "(booked)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2 col-span-2">
+              <label className="text-xs uppercase tracking-wide text-[#5B4B8A] font-semibold">Reason for visit</label>
+              <input
+                type="text"
+                value={form.reason}
+                onChange={handleChange("reason")}
+                placeholder="e.g. Annual checkup"
+                className={`${inputStyle} placeholder-[#8B7BC0]`}
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full bg-[#8A6FC7] hover:bg-[#7A5DB8] disabled:opacity-60 text-white text-base font-semibold py-4 rounded-xl transition-colors"
+          >
+            {submitting ? "Booking..." : "Request appointment"}
+          </button>
+        </div>
+
       </div>
     </div>
   )
