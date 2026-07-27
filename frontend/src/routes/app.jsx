@@ -5,11 +5,11 @@ import LandingPage from "../components/ui/landing/LandingPage"
 import LoginPage from "../pages/auth/LoginPage"
 import RegisterPage from "../pages/auth/RegisterPage"
 import OwnerDashboard from "../pages/owner/owner"
-import OwnerOverview from "../pages/owner/OwnerOverview"
-import OwnerPets from "../pages/owner/OwnerPets"
-import OwnerVets from "../pages/owner/OwnerVets"
-import OwnerBook from "../pages/owner/OwnerBook"
-import OwnerAppointments from "../pages/owner/OwnerAppointments"
+import OwnerOverview from "../pages/owner/ownerOverview"
+import OwnerPets from "../pages/owner/ownerPets"
+import OwnerVets from "../pages/owner/ownerVets"
+import OwnerBook from "../pages/owner/ownerBook"
+import OwnerAppointments from "../pages/owner/ownerAppointments"
 import VetDashboardLayout from "../pages/vet/vet";
 import VetAppointments from "../pages/vet/vetAppointments";
 import VetPatients from "../pages/vet/vetPatients";

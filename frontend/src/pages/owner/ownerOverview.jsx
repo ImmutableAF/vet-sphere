@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { getAppointments } from "../../services/appointments"
 import { getPets } from "../../services/pets"
 import { getVets } from "../../services/vets"
-import HighlightGrid from "../../components/ui/HighlightGrid"
+import HighlightGrid from "../../components/ui/highlightgrid"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 function OwnerOverview() {
