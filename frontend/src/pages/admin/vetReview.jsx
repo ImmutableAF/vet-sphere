@@ -14,7 +14,7 @@ function DocumentPreviewLink({ path }) {
   const containerRef = useRef(null)
 
   const isImage = /\.(png|jpe?g|gif|webp)$/i.test(path || "")
-  const url = `http://localhost:5000${path}`
+  const url = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}${path}`
 
   const onMove = (e) => {
     const el = containerRef.current
