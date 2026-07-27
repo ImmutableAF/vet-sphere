@@ -1,8 +1,4 @@
-import axios from "axios";
-
-const api = axios.create({
-    baseURL: "/"
-})
+import api from "./api";
 
 const authHeader = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }

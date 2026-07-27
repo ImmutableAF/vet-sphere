@@ -1,25 +1,25 @@
-import axios from "axios"
+import api from "./api"
 
 const authHeader = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
 })
 
 export const getVets = async () => {
-  const res = await axios.get("/vets", authHeader())
+  const res = await api.get("/vets", authHeader())
   return res.data
 }
 
 export const getMyVetProfile = async () => {
-  const res = await axios.get("/vets/me", authHeader())
+  const res = await api.get("/vets/me", authHeader())
   return res.data
 }
 
 export const updateMyVetProfile = async (data) => {
-  const res = await axios.patch("/vets/me", data, authHeader())
+  const res = await api.patch("/vets/me", data, authHeader())
   return res.data
 }
 
 export const submitVetVerification = async (formData) => {
-  const res = await axios.post("/vets/verify", formData, authHeader())
+  const res = await api.post("/vets/verify", formData, authHeader())
   return res.data
 }

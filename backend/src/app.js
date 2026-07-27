@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const app = express();
+const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -22,6 +23,10 @@ else {
 app.get('/', (req, res) => {
   res.send('Welcome to VetSphere API');
 });
+
+app.use(cors({
+  origin: 'https://vet-sphere.netlify.app/'
+}));
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
