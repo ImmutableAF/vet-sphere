@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(cors({
-  origin: 'https://vet-sphere.netlify.app/'
+  origin: 'https://vet-sphere.netlify.app'
 }));
 
 app.use(express.json());
